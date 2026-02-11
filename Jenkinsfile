@@ -46,7 +46,7 @@ pipeline {
 
                 # Copy only required files (NO venv)
                 #scp app.py requirements.txt dev_flask.sh -r templates ${FLASK_EC2}:${APP_DIR}
-                scp -r app.py requirements.txt dev_flask.sh templates ${FLASK_EC2}:${APP_DIR}
+                scp -r app.py requirements.txt dev_flask.sh app/templates ubuntu@65.0.86.154:/home/ubuntu/flask-app
                 
                 # Install deps and restart Flask cleanly
                 ssh ${FLASK_EC2} "
@@ -64,4 +64,5 @@ pipeline {
         }
     }
 }
+
 
