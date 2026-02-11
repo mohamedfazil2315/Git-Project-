@@ -2,11 +2,10 @@ pipeline {
     agent any
 
     environment {
-        APP_DIR   = "/home/ubuntu/flask-app"
-        VENV_DIR = "venv"
+        APP_DIR    = "/home/ubuntu/flask-app"
+        VENV_DIR   = "venv"
         FLASK_PORT = "5000"
-        FLASK_EC2 = "ubuntu@65.0.86.154"
-        // FLASK_EC2 = "ubuntu@NEW IP"
+        FLASK_EC2  = "ubuntu@65.0.86.154"
     }
 
     stages {
@@ -41,19 +40,18 @@ pipeline {
         stage('Deploy to Flask EC2') {
             steps {
                 sh '''
-                # Ensure app directory exists
+                # Create app directory
                 ssh ${FLASK_EC2} "mkdir -p ${APP_DIR}"
 
-                # Copy only required files (NO venv)
-                #scp app.py requirements.txt dev_flask.sh -r templates ${FLASK_EC2}:${APP_DIR}
-                scp -r app.py requirements.txt dev_flask.sh app/templates ubuntu@65.0.86.154:/home/ubuntu/flask-app
-                
-                # Install deps and restart Flask cleanly
+                # Copy all project files (except venv)
+                scp -r * ${FLASK_EC2}:${APP_DIR}
+
+                # Setup environment and restart Flask
                 ssh ${FLASK_EC2} "
                   cd ${APP_DIR} &&
-                  rm -rf venv &&
-                  python3 -m venv venv &&
-                  . venv/bin/activate &&
+                  rm -rf ${VENV_DIR} &&
+                  python3 -m venv ${VENV_DIR} &&
+                  . ${VENV_DIR}/bin/activate &&
                   pip install --upgrade pip &&
                   pip install -r requirements.txt &&
                   chmod +x dev_flask.sh &&
@@ -64,5 +62,3 @@ pipeline {
         }
     }
 }
-
-
